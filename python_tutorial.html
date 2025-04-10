@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Tutorial with Audio and Speech Recognition</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <style>
+    /* Base styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: row;
+      transition: background 0.5s ease;
+    }
+
+    /* Improved left pane styling */
+    #left-pane {
+      width: 20%;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      position: fixed;
+      height: 90%;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #4A90E2 #f0f2f5;
+      transition: all 0.3s ease;
+    }
+
+    #left-pane::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #left-pane::-webkit-scrollbar-track {
+      background: #f0f2f5;
+      border-radius: 10px;
+    }
+
+    #left-pane::-webkit-scrollbar-thumb {
+      background-color: #4A90E2;
+      border-radius: 10px;
+    }
+
+    #left-pane ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #left-pane ul li {
+      padding: 12px 15px;
+      cursor: pointer;
+      border-bottom: 1px solid #e0e0e0;
+      color: #4A90E2;
+      font-weight: 600;
+      border-radius: 6px;
+      margin-bottom: 5px;
+      transition: all 0.2s ease;
+    }
+
+    #left-pane ul li:hover {
+      background: #f0f8ff;
+      transform: translateX(5px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    #left-pane ul li:active {
+      background: #e6f0ff;
+      transform: translateX(3px) scale(0.98);
+    }
+
+    /* Improved main content area */
+    #content {
+      margin-left: 25%;
+      width: 70%;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    #content h1 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    #content h1:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: #4A90E2;
+      border-radius: 2px;
+    }
+
+    /* Enhanced modal styling with animations */
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 30px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      display: none;
+      z-index: 1000; /* Significantly increased z-index */
+      max-width: 80vw;
+      max-height: 80vh;
+      width: 700px;
+      overflow-y: auto;
+      opacity: 1; /* Start visible */
+      position: relative; /* Ensure proper close button positioning */
+    }
+
+    .modal.active {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    .modal-content {
+      font-size: 18px;
+      overflow-y: auto;
+    }
+
+    .modal-controls {
+      margin-top: 20px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Improved button styling */
+    .modal-controls button {
+      background-color: #4A90E2;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 50px;
+      cursor: pointer;
+      margin: 5px;
+      transition: all 0.2s ease;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-controls button:hover {
+      background-color: #357ABD;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+    }
+
+    .modal-controls button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* Add icons to buttons */
+    #speaker-button::before {
+      content: "▶ ";
+      margin-right: 5px;
+    }
+
+    #speaker-button.paused::before {
+      content: "⏸ ";
+    }
+
+    button[onclick="playPrevious"]::before {
+      content: "◀ ";
+    }
+
+    button[onclick="playNext"]::before {
+      content: "▶ ";
+    }
+
+    /* Animated search bar */
+    #search-bar {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border: 2px solid #ddd;
+      border-radius: 50px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    #search-bar:focus {
+      border-color: #4A90E2;
+      outline: none;
+      box-shadow: 0 5px 15px rgba(74, 144, 226, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* Enhanced code block styling */
+    .code-block {
+      background-color: #1e1e1e;
+      color: #f8f8f2;
+      padding: 18px;
+      border-radius: 8px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      white-space: pre;
+      overflow-y: auto;
+      overflow-x: auto;
+      margin: 15px 0;
+      max-height: 300px;
+      line-height: 1.5;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      border-left: 4px solid #4A90E2;
+      transition: all 0.3s ease;
+    }
+
+    .code-block:hover {
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .code-container {
+      margin: 5px 0 15px 0; /* Reduced top margin to bring closer to Example label */
+      position: relative;
+    }
+
+    /* Copy button for code */
+    .copy-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .copy-button:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .copy-button:active {
+      transform: scale(0.95);
+    }
+
+    /* Tutorial content styling */
+    .tutorial-content {
+      white-space: pre-line;
+      line-height: 1.6;
+      color: #444;
+    }
+
+    /* Enhanced title styling */
+    .tutorial-title {
+      font-weight: bold;
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      position: relative;
+      padding-bottom: 10px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .tutorial-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background: #4A90E2;
+      border-radius: 2px;
+    }
+
+    /* Enhanced example label styling - reduced bottom margin */
+    .example-label {
+      font-weight: bold;
+      color: #4A90E2;
+      margin-top: 20px;
+      margin-bottom: 5px; /* Reduced from 10px to 5px */
+      display: inline-block;
+      padding: 5px 15px;
+      background: #f0f8ff;
+      border-radius: 30px;
+      border-left: 3px solid #4A90E2;
+      transition: all 0.2s ease;
+    }
+
+    /* Bullet point styling */
+    .tutorial-content ul {
+      padding-left: 20px;
+    }
+
+    .tutorial-content li {
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .tutorial-content p {
+      margin-bottom: 15px;
+    }
+
+    /* Overlay for modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 999; /* Just below modal */
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      display: block;
+    }
+
+    /* X symbol close button with red color */
+    .close-button {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #f0f0f0;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: #ff3333; /* Red color */
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      z-index: 11;
+    }
+
+    .close-button:hover {
+      background: #e0e0e0;
+      transform: rotate(90deg);
+      color: #ff0000; /* Brighter red on hover */
+      box-shadow: 0 3px 8px rgba(255,0,0,0.2);
+    }
+
+    .close-button:active {
+      transform: rotate(90deg) scale(0.95);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      #left-pane {
+        width: 30%;
+        position: relative;
+        height: auto;
+        box-shadow: none;
+        margin-bottom: 20px;
+      }
+
+      #content {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .modal {
+        width: 80%;
+        padding: 20px;
+        max-height: 70vh;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+        padding: 10px;
+      }
+
+      #left-pane {
+        width: 100%;
+        position: relative;
+        height: auto;
+        margin-bottom: 20px;
+        box-shadow: none;
+        padding: 15px;
+      }
+
+      #left-pane ul li {
+        padding: 8px;
+        font-size: 14px;
+      }
+
+      #content {
+        width: 100%;
+        margin: 0;
+        padding: 15px;
+      }
+
+      .modal {
+        width: 90%;
+        padding: 15px;
+        max-height: 70vh;
+      }
+
+      .modal-content {
+        font-size: 16px;
+      }
+
+      .modal-controls button {
+        font-size: 14px;
+        padding: 8px 15px;
+      }
+
+      .speaker-symbol {
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #left-pane ul li {
+        font-size: 12px;
+      }
+
+      #content h1 {
+        font-size: 18px;
+      }
+
+      .modal-content {
+        font-size: 14px;
+      }
+
+      .modal-controls button, .modal-close button {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+
+      .speaker-symbol {
+        font-size: 18px;
+      }
+    }
+
+    /* Additional responsive fixes for laptops */
+    @media (max-width: 1366px) {
+      .modal {
+        width: 75%;
+        max-width: 900px;
+        max-height: 75vh;
+      }
+    }
+  </style>
+  <style>
+  /* Basic reset for modal */
+  .modal {
+    position: fixed;
+    top: 10%;
+    left: 10%;
+    right: 10%;
+    bottom: 10%;
+    width: 80%;
+    height: 80%;
+    background: #fff;
+    padding: 30px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    display: none;
+    z-index: 9999;
+    overflow: auto;
+  }
+
+  /* Ensure overlay has proper z-index and covers entire screen */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9998;
+    display: none;
+  }
+</style>
+<style>
+  /* Smaller, properly positioned modal */
+  .modal {
+    position: fixed;
+    top: 50%;
+    /* Position the modal more to the right to keep the left pane visible */
+    left: calc(25% + 150px);
+    transform: translate(-20%, -50%);
+    width: 550px; /* Smaller width */
+    max-width: 60vw; /* Limit maximum width */
+    max-height: 70vh;
+    background: #fff;
+    padding: 20px; /* Smaller padding */
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    display: none;
+    z-index: 9999;
+    overflow: auto;
+  }
+
+  /* Ensure overlay properly covers the whole page */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9998;
+    display: none;
+  }
+
+  /* Responsive adjustments for the modal */
+  @media (max-width: 1200px) {
+    .modal {
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .modal {
+      width: 90%;
+      max-width: 90vw;
+    }
+  }
+</style>
+<style>
+  /* Clean up redundant modal styles and optimize for laptop screens */
+  .modal {
+    position: fixed;
+    top: 50%;
+    left: calc(25% + 100px); /* Position next to left pane */
+    transform: translate(-10%, -50%);
+    width: 500px; /* Smaller width for better fit */
+    max-width: 55vw;
+    height: auto;
+    max-height: 65vh; /* Smaller height for laptop screens */
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    display: none;
+    z-index: 9999;
+    overflow: auto;
+  }
+
+  /* Laptop-specific adjustments */
+  @media (max-width: 1366px) {
+    .modal {
+      width: 450px;
+      left: calc(20% + 160px); /* Adjusted for common laptop widths */
+    }
+  }
+
+  /* Smaller laptops and tablets */
+  @media (max-width: 1024px) {
+    .modal {
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 65%;
+    }
+  }
+</style>
+<style>
+  /* Increase modal dimensions */
+  .modal {
+    position: fixed;
+    top: 50%;
+    left: calc(25% + 100px);
+    transform: translate(-10%, -50%);
+    width: 600px; /* Increased from 500px */
+    max-width: 65vw; /* Increased from 55vw */
+    height: auto;
+    max-height: 75vh; /* Increased from 65vh */
+    background: #fff;
+    padding: 25px; /* Slightly more padding */
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    display: none;
+    z-index: 9999;
+    overflow: auto;
+  }
+
+  /* Update laptop-specific adjustments */
+  @media (max-width: 1366px) {
+    .modal {
+      width: 550px; /* Increased from 450px */
+      left: calc(20% + 160px);
+    }
+  }
+
+  /* Smaller laptops and tablets - keep these the same */
+  @media (max-width: 1024px) {
+    .modal {
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 70%; /* Increased from 65% */
+    }
+  }
+</style>
+<style>
+  /* Further increase modal dimensions */
+  .modal {
+    position: fixed;
+    top: 50%;
+    left: calc(25% + 100px);
+    transform: translate(-10%, -50%);
+    width: 650px; /* Increased from 600px */
+    max-width: 70vw; /* Increased from 65vw */
+    height: auto;
+    max-height: 80vh; /* Increased from 75vh */
+    background: #fff;
+    padding: 28px; /* Increased from 25px */
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    display: none;
+    z-index: 9999;
+    overflow: auto;
+  }
+
+  /* Update laptop-specific adjustments */
+  @media (max-width: 1366px) {
+    .modal {
+      width: 600px; /* Increased from 550px */
+      left: calc(20% + 160px);
+    }
+  }
+
+  /* Smaller laptops and tablets */
+  @media (max-width: 1024px) {
+    .modal {
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 75%; /* Increased from 70% */
+    }
+  }
+</style>
+<style>
+  /* Adaptive modal sizing - fully visible for small content, scrollable for large content */
+  .modal {
+    position: fixed;
+    top: 50%;
+    left: calc(25% + 100px);
+    transform: translate(-10%, -50%);
+    width: 650px;
+    max-width: 70vw;
+    background: #fff;
+    padding: 28px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    display: none;
+    z-index: 9999;
+    
+    /* Dynamic height handling */
+    height: auto;      /* Allow natural height */
+    max-height: 80vh;  /* Cap height at 80% of viewport */
+    overflow: auto;    /* Only scroll when needed */
+  }
+</style>
+<style>
+  /* Add styling for selected topic */
+  #left-pane ul li.selected {
+    background: #4A90E2;
+    color: white;
+    transform: translateX(5px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    border-left: 3px solid #2c3e50;
+  }
+
+  #left-pane ul li.selected:hover {
+    background: #357ABD;
+    color: white;
+  }
+</style>
+
+<script>
+  // Consolidated, bug-fixed implementation - replace all existing script blocks
+  document.addEventListener('DOMContentLoaded', function() {
+    // Ensure all UI elements exist before proceeding
+    const modal = document.getElementById('modal');
+    const overlay = document.getElementById('modal-overlay');
+    const leftPane = document.getElementById('left-pane');
+    
+    if (!modal || !overlay || !leftPane) {
+      console.error('Required DOM elements not found');
+      return;
+    }
+    
+    // Fix highlighting in next/previous buttons
+    const originalPlayNext = window.playNext;
+    window.playNext = function() {
+      if (currentSectionIndex < tutorialTexts.length - 1) {
+        // Call togglePlay which handles highlighting
+        togglePlay(currentSectionIndex + 1);
+      }
+    };
+    
+    const originalPlayPrevious = window.playPrevious;
+    window.playPrevious = function() {
+      if (currentSectionIndex > 0) {
+        // Call togglePlay which handles highlighting
+        togglePlay(currentSectionIndex - 1);
+      }
+    };
+    
+    // Master implementation of togglePlay
+    window.togglePlay = function(sectionIndex) {
+      // Safety check
+      if (sectionIndex < 0 || sectionIndex >= tutorialTexts.length) {
+        console.error('Invalid section index:', sectionIndex);
+        return;
+      }
+      
+      // Cancel any existing speech
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+      
+      // Update highlighting
+      document.querySelectorAll('#topic-list li').forEach((item, index) => {
+        if (index === sectionIndex) {
+          item.classList.add('selected');
+        } else {
+          item.classList.remove('selected');
+        }
+      });
+      
+      // Set current section
+      currentSectionIndex = sectionIndex;
+      
+      // Prepare speech
+      currentUtterance = new SpeechSynthesisUtterance(
+        tutorialTexts[sectionIndex].replace(/<[^>]*>/g, '')
+      );
+      currentUtterance.lang = 'en-US';
+      currentUtterance.rate = 1;
+      
+      currentUtterance.onend = function() {
+        playNext();
+      };
+      
+      // Format content
+      const formattedContent = formatTutorialContent(tutorialTexts[sectionIndex], sectionIndex);
+      document.getElementById('modal-content').innerHTML = formattedContent;
+      
+      // Add copy functionality
+      setTimeout(() => {
+        addCopyButtons();
+      }, 50);
+      
+      // Open modal
+      openModal();
+      
+      // Start speech with a delay
+      setTimeout(() => {
+        safeStartSpeech(currentUtterance);
+      }, 200);
+      
+      console.log(`Topic ${sectionIndex} selected: ${topicTitles[sectionIndex]}`);
+    };
+    
+    // Single clean implementation of openModal
+    window.openModal = function() {
+      // Position calculation based on screen size
+      if (window.innerWidth > 1366) {
+        // Desktop
+        modal.style.left = 'calc(25% + 100px)';
+        modal.style.transform = 'translate(-10%, -50%)';
+      } else if (window.innerWidth > 1024) {
+        // Laptop
+        modal.style.left = 'calc(20% + 160px)';
+        modal.style.transform = 'translate(-10%, -50%)';
+      } else {
+        // Tablet and below - center it
+        modal.style.left = '50%';
+        modal.style.transform = 'translate(-50%, -50%)';
+      }
+      
+      // Show immediately
+      modal.style.display = 'block';
+      overlay.style.display = 'block';
+      modal.style.opacity = '1';
+      
+      // Ensure clean styles
+      modal.classList.remove('active');
+      overlay.classList.remove('active');
+      
+      // Check content size after rendering and adjust if needed
+      setTimeout(() => {
+        const content = document.getElementById('modal-content');
+        if (!content) return;
+        
+        const controls = modal.querySelector('.modal-controls');
+        const contentHeight = content.scrollHeight;
+        const controlsHeight = controls ? controls.offsetHeight : 0;
+        const totalContentHeight = contentHeight + controlsHeight + 80;
+        const viewportHeight = window.innerHeight;
+        
+        if (totalContentHeight < viewportHeight * 0.7) {
+          // If content is small, show full content without scrolling
+          modal.style.height = 'auto';
+          modal.style.overflow = 'visible';
+        } else {
+          // If content is large, enable scrolling
+          modal.style.maxHeight = '80vh';
+          modal.style.overflow = 'auto';
+        }
+      }, 50);
+      
+      // Accessibility
+      modal.setAttribute('aria-hidden', 'false');
+      
+      // Add keyboard navigation - only add once
+      document.removeEventListener('keydown', handleKeyPress);
+      document.addEventListener('keydown', handleKeyPress);
+    };
+    
+    // Clean implementation of closeModal
+    window.closeModal = function() {
+      // Hide immediately
+      modal.style.display = 'none';
+      overlay.style.display = 'none';
+      
+      // Stop speech
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+      
+      // Reset UI state
+      const speakerButton = document.getElementById('speaker-button');
+      if (speakerButton) {
+        speakerButton.textContent = 'Play';
+        speakerButton.classList.remove('paused');
+      }
+      isPaused = false;
+      
+      // Remove highlighting from all topics
+      document.querySelectorAll('#topic-list li').forEach(item => {
+        item.classList.remove('selected');
+      });
+      
+      // Accessibility
+      modal.setAttribute('aria-hidden', 'true');
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+    
+    // Fix speech synthesis error handling
+    window.safeStartSpeech = function(utterance) {
+      if (!utterance) {
+        console.error('No utterance provided');
+        return;
+      }
+      
+      try {
+        speechSynthesis.speak(utterance);
+      } catch (e) {
+        console.error("Speech synthesis error:", e);
+        // Show error message in modal
+        const content = document.getElementById('modal-content');
+        if (content) {
+          const errorMsg = document.createElement('p');
+          errorMsg.style.color = 'red';
+          errorMsg.textContent = 'Speech synthesis not available in this browser.';
+          content.appendChild(errorMsg);
+        }
+      }
+    };
+    
+    // Prevent duplicate event listeners
+    const closeButton = document.querySelector('.close-button');
+    if (closeButton) {
+      // Remove any existing listeners first
+      const newCloseButton = closeButton.cloneNode(true);
+      closeButton.parentNode.replaceChild(newCloseButton, closeButton);
+      
+      // Add click handler
+      newCloseButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeModal();
+      });
+    }
+    
+    // Apply same technique to modal overlay
+    const newOverlay = overlay.cloneNode(true);
+    overlay.parentNode.replaceChild(newOverlay, overlay);
+    newOverlay.addEventListener('click', closeModal);
+    
+    // Clean implementation of togglePause
+    window.togglePause = function() {
+      const speakerButton = document.getElementById('speaker-button');
+      if (!speakerButton) return;
+      
+      if (speechSynthesis.speaking && !isPaused) {
+        try {
+          speechSynthesis.pause();
+          speakerButton.textContent = 'Pause';
+          speakerButton.classList.add('paused');
+          isPaused = true;
+        } catch (e) {
+          console.error('Speech pause error:', e);
+          // Fallback - cancel and restart instead
+          speechSynthesis.cancel();
+          isPaused = false;
+          togglePlay(currentSectionIndex);
+        }
+      } else if (isPaused) {
+        try {
+          speechSynthesis.resume();
+          speakerButton.textContent = 'Play';
+          speakerButton.classList.remove('paused');
+          setTimeout(() => {
+            if (speechSynthesis.speaking && isPaused) {
+              speechSynthesis.cancel();
+              isPaused = false;
+              togglePlay(currentSectionIndex);
+            }
+          }, 200);
+        } catch (e) {
+          console.error('Speech resume error:', e);
+          // Fallback - cancel and restart
+          speechSynthesis.cancel();
+          isPaused = false;
+          togglePlay(currentSectionIndex);
+        }
+      }
+    };
+    
+    console.log('Enhanced modal functionality initialized');
+  });
+</script>
+<script>
+  // Add page refresh functionality for wrong button clicks in the modal
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add a click handler to the entire modal
+    const modal = document.getElementById('modal');
+    if (modal) {
+      // Listen for clicks anywhere in the modal
+      modal.addEventListener('click', function(e) {
+        // Check if the click was on the background area and not on buttons or content
+        if (e.target === modal) {
+          // If user clicked in the wrong area of the modal
+          e.stopPropagation();
+          window.location.reload();
+        }
+      });
+      
+      // Make the close button always reload the page
+      const closeButton = document.querySelector('.close-button');
+      if (closeButton) {
+        closeButton.onclick = function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          // First close the modal with existing function
+          if (typeof closeModal === 'function') {
+            closeModal();
+          }
+          // Then reload the page
+          window.location.reload();
+        };
+      }
+    }
+  });
+</script>
+</head>
+<body>
+  <div id="content">
+    <h1>Python Tutorial</h1>
+    <p>Click on a topic from the left pane to start learning about it with audio support!</p>
+  </div><br>
+  
+  <div id="left-pane">
+    <input type="text" id="search-bar" placeholder="Search topics..." onkeyup="filterTopics()" aria-label="Search topics">
+    <ul id="topic-list">
+      <li onclick="togglePlay(0)">Introduction to Python</li>
+      <li onclick="togglePlay(1)">Variables and Data Types</li>
+      <li onclick="togglePlay(2)">Control Structures</li>
+      <li onclick="togglePlay(3)">Functions</li>
+      <li onclick="togglePlay(4)">Modules and Packages</li>
+      <li onclick="togglePlay(5)">File Handling</li>
+      <li onclick="togglePlay(6)">Error and Exception Handling</li>
+      <li onclick="togglePlay(7)">Object-Oriented Programming</li>
+      <li onclick="togglePlay(8)">Python Libraries</li>
+      <li onclick="togglePlay(9)">Web Development with Python</li>
+      <li onclick="togglePlay(10)">Data Analysis with Python</li>
+      <li onclick="togglePlay(11)">Machine Learning with Python</li>
+      <li onclick="togglePlay(12)">Python in Data Science</li>
+      <li onclick="togglePlay(13)">Python for Automation</li>
+      <li onclick="togglePlay(14)">Testing in Python</li>
+      <li onclick="togglePlay(15)">Conclusion</li>
+    </ul>
+  </div>
+
+  <!-- Add overlay for modal background -->
+  <div id="modal-overlay" class="modal-overlay"></div>
+
+  <div id="modal" class="modal" role="dialog" aria-labelledby="modal-content" aria-hidden="true">
+    <!-- Add X button for closing -->
+    <button class="close-button" onclick="closeModal()" aria-label="Close">×</button>
+    <div id="modal-content" class="modal-content"></div>
+    <div class="modal-controls">
+      <button id="speaker-button" onclick="togglePause()" aria-label="Toggle audio">Play</button>
+      <button onclick="playPrevious()">Previous</button>
+      <button onclick="playNext()">Next</button>
+    </div>
+  </div>
+
+  <script>
+    // Add topic titles array that matches the menu items
+    const topicTitles = [
+      "Introduction to Python",
+      "Variables and Data Types",
+      "Control Structures",
+      "Functions",
+      "Modules and Packages",
+      "File Handling",
+      "Error and Exception Handling",
+      "Object-Oriented Programming",
+      "Python Libraries",
+      "Web Development with Python",
+      "Data Analysis with Python",
+      "Machine Learning with Python",
+      "Python in Data Science",
+      "Python for Automation",
+      "Testing in Python",
+      "Conclusion"
+    ];
+    const tutorialTexts = [
+  `Python is a popular programming language known for its simplicity and versatility.
+  1. Easy to learn and read
+  2. Extensive standard library
+  3. Large community support
+  4. Cross-platform compatibility
+  Example:
+  print("Hello, World!")`,
+
+  `Variables are used to store data, and Python supports various data types such as integers, floats, and strings.
+  1. Numbers (int, float)
+  2. Strings (str)
+  3. Lists and Tuples
+  4. Dictionaries
+  5. Boolean values
+  Example:
+  age = 25           # integer
+  height = 1.75      # float
+  name = "John Doe"  # string
+  numbers = [1, 2, 3, 4, 5]  # list
+  person = {"name": "John", "age": 25}  # dictionary`,
+
+  `Control structures, including if statements and loops, allow for decision making and repeated execution in Python.
+  1. If statements
+  2. For loops
+  3. While loops
+  Example:
+  if age >= 18:
+      print("Adult")
+  else:
+      print("Minor")
+
+  for i in range(5):
+      print(i)
+
+  count = 0
+  while count < 5:
+      print(count)
+      count += 1`,
+
+  `Functions are blocks of code that perform specific tasks and can be reused throughout the code.
+  1. Definition using 'def' keyword
+  2. Can have parameters and return values
+  Example:
+  def greet(name):
+      return f"Hello, {name}!"
+  message = greet("Alice")
+  print(message)  # Output: Hello, Alice!`,
+
+  `Modules and packages help organize and manage code in Python, allowing for code reusability and modularity.
+  1. Import existing modules: import math
+  2. Create custom modules
+  3. Use pip for package management
+  Example:
+  import random
+  random_number = random.randint(1, 10)
+  print(random_number)`,
+
+  `File handling in Python allows for reading and writing files to store data persistently.
+  1. Open files: open("file.txt", "r")
+  2. Read content: file.read()
+  3. Write content: file.write()
+  Example:
+  with open("data.txt", "w") as f:
+      f.write("Hello World")
+  with open("data.txt", "r") as f:
+      content = f.read()
+      print(content)`,
+
+  `Error and exception handling is crucial for writing robust programs that can gracefully handle unexpected situations.
+  1. Try-except blocks
+  2. Handling specific exceptions
+  Example:
+  try:
+      result = 10 / 0
+  except ZeroDivisionError:
+      print("Cannot divide by zero!")`,
+
+  `Object-oriented programming in Python allows for organizing code using classes and objects to model real-world entities.
+  1. Classes and Objects
+  2. Inheritance
+  3. Encapsulation
+  Example:
+  class Dog:
+      def __init__(self, name):
+          self.name = name
+
+      def bark(self):
+          return f"{self.name} says woof!"
+
+  my_dog = Dog("Rex")
+  print(my_dog.bark())  # Output: Rex says woof!`,
+
+  `Python offers a rich set of libraries for various tasks, from web development to data analysis.
+  1. NumPy: for numerical computations
+  2. Pandas: for data analysis
+  3. Matplotlib: for data visualization
+  4. Requests: for HTTP requests
+  Example:
+  import numpy as np
+  array = np.array([1, 2, 3, 4, 5])
+  print(array)`,
+
+  `Python is widely used in web development through frameworks like Django and Flask.
+  1. Flask: Lightweight framework
+  2. Django: Full-featured framework
+  Example:
+  from flask import Flask
+  app = Flask(__name__)
+
+  @app.route('/')
+  def hello():
+      return "Hello, World!"
+
+  if __name__ == "__main__":
+      app.run(debug=True)`,
+
+  `Data analysis with Python is commonly done using libraries like Pandas and NumPy.
+  1. Pandas for data manipulation
+  2. NumPy for numerical operations
+  Example:
+  import pandas as pd
+  df = pd.DataFrame({
+      'name': ['John', 'Alice'],
+      'age': [25, 30]
+  })
+  print(df)`,
+
+  `Machine learning with Python is supported by libraries such as TensorFlow and scikit-learn.
+  1. Scikit-learn
+  2. TensorFlow
+  3. PyTorch
+  Example:
+  from sklearn.model_selection import train_test_split
+  from sklearn.linear_model import LinearRegression
+
+  X = [[1], [2], [3], [4], [5]]
+  y = [1, 2, 3, 4, 5]
+
+  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+  model = LinearRegression().fit(X_train, y_train)
+  print(model.predict(X_test))`,
+
+  `Python plays a significant role in data science for analyzing and visualizing data.
+  1. Data cleaning
+  2. Statistical analysis
+  3. Data visualization
+  Example:
+  import matplotlib.pyplot as plt
+  plt.plot([1, 2, 3], [1, 2, 3])
+  plt.show()`,
+
+  `Python can be used for automation tasks, making repetitive tasks easier and more efficient.
+  1. File system operations
+  2. Task scheduling
+  3. Web scraping
+  Example:
+  import os
+  files = os.listdir()
+  print(files)`,
+
+  `Testing in Python ensures code reliability and helps catch bugs before deployment.
+  1. unittest
+  2. pytest
+  3. doctest
+  Example:
+  import unittest
+
+  class TestMathFunctions(unittest.TestCase):
+      def test_addition(self):
+          self.assertEqual(1 + 1, 2)
+
+  if __name__ == "__main__":
+      unittest.main()`,
+
+  `In conclusion, Python is a versatile language suitable for many applications.
+  1. Easy to learn and use
+  2. Extensive library ecosystem
+  3. Large community support
+  4. Suitable for web development, data analysis, machine learning, automation, and more
+
+  Keep practicing and exploring!`
+];
+
+
+    
+    let currentUtterance = null;
+    let currentSectionIndex = -1;
+    let isPaused = false;
+
+    function togglePlay(sectionIndex) {
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+
+      currentSectionIndex = sectionIndex;
+      currentUtterance = new SpeechSynthesisUtterance(
+        tutorialTexts[sectionIndex].replace(/<[^>]*>/g, '')
+      );
+      currentUtterance.lang = 'en-US';
+      currentUtterance.rate = 1;
+
+      currentUtterance.onend = function() {
+        playNext();
+      };
+
+      // Format tutorial content with code blocks - pass section index for title
+      const formattedContent = formatTutorialContent(tutorialTexts[sectionIndex], sectionIndex);
+      document.getElementById('modal-content').innerHTML = formattedContent;
+      
+      // Add copy functionality to code blocks
+      addCopyButtons();
+      
+      openModal();
+      setTimeout(() => safeStartSpeech(currentUtterance), 100);
+    }
+
+    function formatTutorialContent(text, index) {
+      // Split the content into paragraphs
+      const paragraphs = text.split('\n');
+      let result = '<div class="tutorial-content">';
+      
+      // Use the topic title from our array instead of the first line
+      result += `<div class="tutorial-title">${topicTitles[index]}</div>`;
+      
+      let inCodeBlock = false;
+      let codeContent = '';
+      let bulletPoints = [];
+      
+      paragraphs.forEach(para => {
+        const trimmedPara = para.trim();
+        
+        // Check if this is the start of a code example
+        if (trimmedPara === 'Example:') {
+          inCodeBlock = true;
+          codeContent = '';
+          // Add the Example label with styling
+          result += `<span class="example-label">Example:</span>`;
+        } 
+        // If we're in a code block, add to code content
+        else if (inCodeBlock) {
+          codeContent += trimmedPara + '\n';
+        }
+        // Check for bullet points
+        else if (trimmedPara.startsWith('•')) {
+          bulletPoints.push(trimmedPara.substring(1).trim());
+        }
+        // Regular paragraph
+        else if (trimmedPara) {
+          result += `<p>${trimmedPara}</p>`;
+          
+          // Add bullet points if we've collected any
+          if (bulletPoints.length > 0) {
+            result += '<ul>';
+            bulletPoints.forEach(point => {
+              result += `<li>${point}</li>`;
+            });
+            result += '</ul>';
+            bulletPoints = [];
+          }
+        }
+      });
+      
+      // If we collected code content, format it as a single scrollable code block
+      if (codeContent) {
+        result += `<div class="code-container">
+                    <div class="code-block">${codeContent}</div>
+                  </div>`;
+      }
+      
+      result += '</div>';
+      return result;
+    }
+
+    // Add copy buttons to code blocks
+    function addCopyButtons() {
+      const codeBlocks = document.querySelectorAll('.code-block');
+      codeBlocks.forEach(block => {
+        const button = document.createElement('button');
+        button.className = 'copy-button';
+        button.textContent = 'Copy';
+        button.addEventListener('click', () => {
+          navigator.clipboard.writeText(block.textContent).then(() => {
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+              button.textContent = 'Copy';
+            }, 2000);
+          });
+        });
+        block.parentNode.appendChild(button);
+      });
+    }
+
+    function togglePause() {
+      const speakerButton = document.getElementById('speaker-button');
+
+      if (speechSynthesis.speaking && !isPaused) {
+        speechSynthesis.pause();
+        speakerButton.textContent = 'Pause';
+        speakerButton.classList.add('paused');
+        isPaused = true;
+      } else if (isPaused) {
+        speechSynthesis.cancel();
+        isPaused = false;
+        togglePlay(currentSectionIndex); // Restart the current section
+        speakerButton.textContent = 'Play';
+        speakerButton.classList.remove('paused');
+      }
+    }
+
+    function playNext() {
+      if (currentSectionIndex < tutorialTexts.length - 1) {
+        togglePlay(currentSectionIndex + 1);
+      }
+    }
+
+    function playPrevious() {
+      if (currentSectionIndex > 0) {
+        togglePlay(currentSectionIndex - 1);
+      }
+    }
+
+    function filterTopics() {
+      const searchInput = document.getElementById('search-bar').value.toLowerCase();
+      const topics = document.querySelectorAll('#topic-list li');
+      topics.forEach(topic => {
+        const text = topic.textContent.toLowerCase();
+        if (text.includes(searchInput)) {
+          topic.style.display = '';
+        } else {
+          topic.style.display = 'none';
+        }
+      });
+    }
+
+    // Enhanced open/close modal with animations
+    function openModal() {
+      const modal = document.getElementById('modal');
+      const overlay = document.getElementById('modal-overlay');
+      
+      // Ensure clean starting state
+      modal.classList.remove('active');
+      overlay.classList.remove('active');
+      
+      // Make visible immediately
+      modal.style.display = 'block';
+      overlay.style.display = 'block';
+      modal.style.opacity = '1';
+      
+      // Force browser reflow
+      void modal.offsetWidth;
+      
+      // Set accessibility
+      modal.setAttribute('aria-hidden', 'false');
+      
+      // Add keyboard navigation
+      document.addEventListener('keydown', handleKeyPress);
+      
+      // Optional: log to console for debugging
+      console.log('Modal opened, display:', getComputedStyle(modal).display);
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('modal');
+      const overlay = document.getElementById('modal-overlay');
+      modal.classList.remove('active');
+      overlay.classList.remove('active');
+      
+      // Wait for animation to complete
+      setTimeout(() => {
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+      }, 300);
+      
+      modal.setAttribute('aria-hidden', 'true');
+      speechSynthesis.cancel();
+      const speakerButton = document.getElementById('speaker-button');
+      speakerButton.textContent = 'Play';
+      speakerButton.classList.remove('paused');
+      isPaused = false;
+      
+      // Remove keyboard listener
+      document.removeEventListener('keydown', handleKeyPress);
+    }
+    
+    // Keyboard navigation
+    function handleKeyPress(e) {
+      switch(e.key) {
+        case 'Escape':
+          closeModal();
+          break;
+        case 'ArrowRight':
+          playNext();
+          break;
+        case 'ArrowLeft':
+          playPrevious();
+          break;
+        case ' ':
+          e.preventDefault();
+          togglePause();
+          break;
+      }
+    }
+
+    // Add event listener for modal overlay click
+    document.getElementById('modal-overlay').addEventListener('click', closeModal);
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add ripple effect to buttons
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          const x = e.clientX - e.target.getBoundingClientRect().left;
+          const y = e.clientY - e.target.getBoundingClientRect().top;
+          
+          const ripple = document.createElement('span');
+          ripple.style.left = `${x}px`;
+          ripple.style.top = `${y}px`;
+          ripple.className = 'ripple';
+          
+          this.appendChild(ripple);
+          
+          setTimeout(() => {
+            ripple.remove();
+          }, 600);
+        });
+      });
+    });
+
+    // Make sure the browser doesn't block speech synthesis
+    function safeStartSpeech(utterance) {
+      try {
+        speechSynthesis.speak(utterance);
+      } catch (e) {
+        console.error("Speech synthesis error:", e);
+        // Fallback - just show the modal without speech
+      }
+    }
+  </script>
+  <script>
+  // Simplified modal functions that use direct DOM manipulation rather than transitions
+  function openModal() {
+    // Use direct display approach instead of animations
+    const modal = document.getElementById('modal');
+    const overlay = document.getElementById('modal-overlay');
+    
+    // Reset all styles that might interfere
+    modal.style.opacity = '1';
+    modal.style.transform = 'none';
+    modal.className = 'modal';
+    
+    // Display directly
+    modal.style.display = 'block';
+    overlay.style.display = 'block';
+    
+    // Set accessibility attribute
+    modal.setAttribute('aria-hidden', 'false');
+    
+    // Add keyboard navigation
+    document.addEventListener('keydown', handleKeyPress);
+    
+    // Log for debugging
+    console.log('Modal opened with simplified approach');
+  }
+
+  function closeModal() {
+    // Direct approach to closing
+    const modal = document.getElementById('modal');
+    const overlay = document.getElementById('modal-overlay');
+    
+    // Hide immediately without animations
+    modal.style.display = 'none';
+    overlay.style.display = 'none';
+    
+    // Set accessibility attribute
+    modal.setAttribute('aria-hidden', 'true');
+    
+    // Stop speech
+    speechSynthesis.cancel();
+    
+    // Reset button state
+    const speakerButton = document.getElementById('speaker-button');
+    speakerButton.textContent = 'Play';
+    speakerButton.classList.remove('paused');
+    isPaused = false;
+    
+    // Remove keyboard listener
+    document.removeEventListener('keydown', handleKeyPress);
+  }
+
+  // Toggle function with more direct modal handling
+  function togglePlay(sectionIndex) {
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+    }
+
+    currentSectionIndex = sectionIndex;
+    currentUtterance = new SpeechSynthesisUtterance(
+      tutorialTexts[sectionIndex].replace(/<[^>]*>/g, '')
+    );
+    currentUtterance.lang = 'en-US';
+    currentUtterance.rate = 1;
+
+    currentUtterance.onend = function() {
+      playNext();
+    };
+
+    // First prepare the content
+    const formattedContent = formatTutorialContent(tutorialTexts[sectionIndex], sectionIndex);
+    document.getElementById('modal-content').innerHTML = formattedContent;
+    
+    // Add copy functionality 
+    setTimeout(() => {
+      addCopyButtons();
+    }, 50);
+    
+    // Then open modal - important to do this BEFORE speech synthesis
+    openModal();
+    
+    // Start speech with a delay
+    setTimeout(() => {
+      try {
+        speechSynthesis.speak(currentUtterance);
+      } catch (e) {
+        console.error("Speech error:", e);
+      }
+    }, 200);
+  }
+</script>
+<script>
+  // Simplified modal opening function that doesn't cover the left pane
+  function openModal() {
+    const modal = document.getElementById('modal');
+    const overlay = document.getElementById('modal-overlay');
+    const leftPane = document.getElementById('left-pane');
+    
+    // Adjust modal position based on screen size
+    if (window.innerWidth > 1200) {
+      // On larger screens, position it to the right of the left pane
+      const leftPaneWidth = leftPane.offsetWidth;
+      modal.style.left = `calc(25% + ${leftPaneWidth/2}px)`;
+    } else {
+      // On smaller screens, center it
+      modal.style.left = '50%';
+      modal.style.transform = 'translate(-50%, -50%)';
+    }
+    
+    // Show the modal and overlay
+    modal.style.display = 'block';
+    overlay.style.display = 'block';
+    modal.setAttribute('aria-hidden', 'false');
+    
+    // Add keyboard navigation
+    document.addEventListener('keydown', handleKeyPress);
+  }
+
+  // Ensure modal properly closes on X button click
+  function closeModal() {
+    const modal = document.getElementById('modal');
+    const overlay = document.getElementById('modal-overlay');
+    
+    // Immediately hide the modal and overlay
+    modal.style.display = 'none';
+    overlay.style.display = 'none';
+    
+    // Stop speech synthesis
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+    }
+    
+    // Reset button state
+    const speakerButton = document.getElementById('speaker-button');
+    speakerButton.textContent = 'Play';
+    speakerButton.classList.remove('paused');
+    isPaused = false;
+    
+    // Remove keyboard listener
+    document.removeEventListener('keydown', handleKeyPress);
+  }
+
+  // Add event listeners when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    // ...existing code...
+    
+    // Make sure close button works
+    const closeButton = document.querySelector('.close-button');
+    if (closeButton) {
+      closeButton.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent event bubbling
+        closeModal();
+      });
+    }
+    
+    // Also close modal when clicking on overlay
+    document.getElementById('modal-overlay').addEventListener('click', closeModal);
+  });
+</script>
+<script>
+  // Single, clean implementation of modal functions
+  document.addEventListener('DOMContentLoaded', function() {
+    // Ensure we have only one implementation of these functions
+    window.openModal = function() {
+      const modal = document.getElementById('modal');
+      const overlay = document.getElementById('modal-overlay');
+      const leftPane = document.getElementById('left-pane');
+      
+      // Position calculation based on screen size
+      if (window.innerWidth > 1366) {
+        // Desktop
+        modal.style.left = 'calc(25% + 100px)';
+        modal.style.transform = 'translate(-10%, -50%)';
+      } else if (window.innerWidth > 1024) {
+        // Laptop
+        modal.style.left = 'calc(20% + 160px)';
+        modal.style.transform = 'translate(-10%, -50%)';
+      } else {
+        // Tablet and below - center it
+        modal.style.left = '50%';
+        modal.style.transform = 'translate(-50%, -50%)';
+      }
+      
+      // Show immediately
+      modal.style.display = 'block';
+      overlay.style.display = 'block';
+      
+      // Accessibility
+      modal.setAttribute('aria-hidden', 'false');
+      
+      // Add keyboard navigation
+      document.addEventListener('keydown', handleKeyPress);
+    };
+    
+    window.closeModal = function() {
+      const modal = document.getElementById('modal');
+      const overlay = document.getElementById('modal-overlay');
+      
+      // Hide immediately
+      modal.style.display = 'none';
+      overlay.style.display = 'none';
+      
+      // Stop speech
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+      
+      // Reset UI state
+      const speakerButton = document.getElementById('speaker-button');
+      if (speakerButton) {
+        speakerButton.textContent = 'Play';
+        speakerButton.classList.remove('paused');
+      }
+      isPaused = false;
+      
+      // Accessibility
+      modal.setAttribute('aria-hidden', 'true');
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+    
+    // Make sure close button works
+    const closeButton = document.querySelector('.close-button');
+    if (closeButton) {
+      closeButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeModal();
+      });
+    }
+    
+    // Close modal when overlay is clicked
+    const overlay = document.getElementById('modal-overlay');
+    if (overlay) {
+      overlay.addEventListener('click', closeModal);
+    }
+  });
+</script>
+</body>
+</html>

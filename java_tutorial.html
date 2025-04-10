@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Java Tutorial with Audio and Speech Recognition</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <style>
+    /* Base styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: row;
+      transition: background 0.5s ease;
+    }
+
+    /* Improved left pane styling */
+    #left-pane {
+      width: 20%;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      position: fixed;
+      height: 90%;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #4A90E2 #f0f2f5;
+      transition: all 0.3s ease;
+    }
+
+    #left-pane::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #left-pane::-webkit-scrollbar-track {
+      background: #f0f2f5;
+      border-radius: 10px;
+    }
+
+    #left-pane::-webkit-scrollbar-thumb {
+      background-color: #4A90E2;
+      border-radius: 10px;
+    }
+
+    #left-pane ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #left-pane ul li {
+      padding: 12px 15px;
+      cursor: pointer;
+      border-bottom: 1px solid #e0e0e0;
+      color: #4A90E2;
+      font-weight: 600;
+      border-radius: 6px;
+      margin-bottom: 5px;
+      transition: all 0.2s ease;
+    }
+
+    #left-pane ul li:hover {
+      background: #f0f8ff;
+      transform: translateX(5px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    #left-pane ul li:active {
+      background: #e6f0ff;
+      transform: translateX(3px) scale(0.98);
+    }
+
+    /* Improved main content area */
+    #content {
+      margin-left: 25%;
+      width: 70%;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    #content h1 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    #content h1:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: #4A90E2;
+      border-radius: 2px;
+    }
+
+    /* Enhanced modal styling with animations */
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: calc(25% + 100px);
+      transform: translate(-10%, -50%);
+      background: #fff;
+      padding: 28px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      display: none;
+      z-index: 1000;
+      width: 650px;
+      max-width: 70vw;
+      height: auto;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      display: none;
+    }
+
+    .modal-content {
+      font-size: 18px;
+      overflow-y: auto;
+    }
+
+    .modal-controls {
+      margin-top: 20px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Improved button styling */
+    .modal-controls button {
+      background-color: #4A90E2;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 50px;
+      cursor: pointer;
+      margin: 5px;
+      transition: all 0.2s ease;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-controls button:hover {
+      background-color: #357ABD;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+    }
+
+    .modal-controls button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* Speaker button styling */
+    #speaker-button::before {
+      content: "▶ ";
+      margin-right: 5px;
+    }
+
+    #speaker-button.paused::before {
+      content: "⏸ ";
+    }
+
+    /* Enhanced search bar */
+    #search-bar {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border: 2px solid #ddd;
+      border-radius: 50px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    #search-bar:focus {
+      border-color: #4A90E2;
+      outline: none;
+      box-shadow: 0 5px 15px rgba(74, 144, 226, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* Enhanced code block styling */
+    .code-example, .code-block {
+      background-color: #1e1e1e;
+      color: #f8f8f2;
+      padding: 18px;
+      border-radius: 8px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      white-space: pre;
+      overflow-y: auto;
+      overflow-x: auto;
+      margin: 15px 0;
+      max-height: 300px;
+      line-height: 1.5;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      border-left: 4px solid #4A90E2;
+      transition: all 0.3s ease;
+    }
+
+    .code-example:hover, .code-block:hover {
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .code-container, .code-wrapper {
+      margin: 5px 0 15px 0;
+      position: relative;
+    }
+
+    /* Copy button for code */
+    .copy-button, .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .copy-button:hover, .copy-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .copy-button:active, .copy-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Tutorial content styling */
+    .tutorial-content {
+      white-space: pre-line;
+      line-height: 1.6;
+      color: #444;
+    }
+
+    /* Enhanced title styling */
+    .tutorial-title {
+      font-weight: bold;
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      position: relative;
+      padding-bottom: 10px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .tutorial-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background: #4A90E2;
+      border-radius: 2px;
+    }
+
+    /* Example label styling */
+    .example-label {
+      font-weight: bold;
+      color: #4A90E2;
+      margin-top: 20px;
+      margin-bottom: 5px;
+      display: inline-block;
+      padding: 5px 15px;
+      background: #f0f8ff;
+      border-radius: 30px;
+      border-left: 3px solid #4A90E2;
+      transition: all 0.2s ease;
+    }
+
+    /* X symbol close button */
+    .close-button {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #f0f0f0;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: #ff3333;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      z-index: 11;
+    }
+
+    .close-button:hover {
+      background: #e0e0e0;
+      transform: rotate(90deg);
+      color: #ff0000;
+      box-shadow: 0 3px 8px rgba(255,0,0,0.2);
+    }
+
+    .close-button:active {
+      transform: rotate(90deg) scale(0.95);
+    }
+
+    /* Selected topic styling */
+    #left-pane ul li.selected {
+      background: #4A90E2;
+      color: white;
+      transform: translateX(5px);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      border-left: 3px solid #2c3e50;
+    }
+
+    #left-pane ul li.selected:hover {
+      background: #357ABD;
+      color: white;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1366px) {
+      .modal {
+        width: 600px;
+        left: calc(20% + 160px);
+      }
+    }
+
+    @media (max-width: 1024px) {
+      #left-pane {
+        width: 30%;
+        position: relative;
+        height: auto;
+        box-shadow: none;
+        margin-bottom: 20px;
+      }
+
+      #content {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .modal {
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 75%;
+        padding: 20px;
+        max-height: 70vh;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+        padding: 10px;
+      }
+
+      #left-pane {
+        width: 100%;
+        position: relative;
+        height: auto;
+        margin-bottom: 20px;
+        box-shadow: none;
+        padding: 15px;
+      }
+
+      #left-pane ul li {
+        padding: 8px;
+        font-size: 14px;
+      }
+
+      #content {
+        width: 100%;
+        margin: 0;
+        padding: 15px;
+      }
+
+      .modal {
+        width: 90%;
+        padding: 15px;
+        max-height: 70vh;
+      }
+
+      .modal-content {
+        font-size: 16px;
+      }
+
+      .modal-controls button {
+        font-size: 14px;
+        padding: 8px 15px;
+      }
+
+      .speaker-symbol {
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #left-pane ul li {
+        font-size: 12px;
+      }
+
+      #content h1 {
+        font-size: 18px;
+      }
+
+      .modal-content {
+        font-size: 14px;
+      }
+
+      .modal-controls button {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+
+      .speaker-symbol {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="content">
+    <h1>Java Tutorial</h1>
+    <p>Click on a topic from the left pane to start learning about it with audio support!</p>
+  </div><br>
+  
+  <div id="left-pane">
+    <input type="text" id="search-bar" placeholder="Search topics..." onkeyup="filterTopics()" aria-label="Search topics">
+    <ul id="topic-list">
+      <li tabindex="0" onclick="togglePlay(0)">Introduction to Java</li>
+      <li tabindex="0" onclick="togglePlay(1)">Java Basics</li>
+      <li tabindex="0" onclick="togglePlay(2)">Object-Oriented Programming</li>
+      <li tabindex="0" onclick="togglePlay(3)">Inheritance</li>
+      <li tabindex="0" onclick="togglePlay(4)">Polymorphism</li>
+      <li tabindex="0" onclick="togglePlay(5)">Abstraction</li>
+      <li tabindex="0" onclick="togglePlay(6)">Encapsulation</li>
+      <li tabindex="0" onclick="togglePlay(7)">Interfaces</li>
+      <li tabindex="0" onclick="togglePlay(8)">Exception Handling</li>
+      <li tabindex="0" onclick="togglePlay(9)">Collections Framework</li>
+      <li tabindex="0" onclick="togglePlay(10)">Streams and File I/O</li>
+      <li tabindex="0" onclick="togglePlay(11)">Multithreading</li>
+      <li tabindex="0" onclick="togglePlay(12)">JavaFX</li>
+      <li tabindex="0" onclick="togglePlay(13)">Networking</li>
+      <li tabindex="0" onclick="togglePlay(14)">JDBC</li>
+      <li tabindex="0" onclick="togglePlay(15)">Java 8 Features</li>
+      <li tabindex="0" onclick="togglePlay(16)">Java 11 Features</li>
+      <li tabindex="0" onclick="togglePlay(17)">Java 17 Features</li>
+    </ul>
+  </div>
+
+  <!-- Add overlay for modal background -->
+  <div id="modal-overlay" class="modal-overlay"></div>
+
+  <div id="modal" class="modal" role="dialog" aria-labelledby="modal-content" aria-hidden="true">
+    <button class="close-button" onclick="closeModal()" aria-label="Close">×</button>
+    <div id="modal-content" class="modal-content"></div>
+    <div class="modal-controls">
+      <button id="speaker-button" onclick="togglePause()" aria-label="Toggle audio">Play</button>
+      <button onclick="playPrevious()">Previous</button>
+      <button onclick="playNext()">Next</button>
+      <button onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // Topic titles array
+    const topicTitles = [
+      "Introduction to Java",
+      "Java Basics",
+      "Object-Oriented Programming",
+      "Inheritance",
+      "Polymorphism",
+      "Abstraction",
+      "Encapsulation",
+      "Interfaces",
+      "Exception Handling",
+      "Collections Framework",
+      "Streams and File I/O",
+      "Multithreading",
+      "JavaFX",
+      "Networking",
+      "JDBC",
+      "Java 8 Features",
+      "Java 11 Features",
+      "Java 17 Features"
+    ];
+
+    const tutorialTexts = [
+  `Introduction to Java
+
+Key Points:
+1. Java is a high-level, class-based, object-oriented programming language.
+2. It is designed to have as few implementation dependencies as possible.
+3. Write Once, Run Anywhere (WORA) capability.
+
+Example:
+<div class="code-block">public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}</div>`,
+
+  `Java Basics
+
+Key Points:
+1. Java syntax is similar to C++ but with fewer low-level facilities.
+2. Java applications are typically compiled to bytecode.
+3. The Java Virtual Machine (JVM) executes the bytecode.
+
+Example:
+<div class="code-block">int number = 10;
+String name = "Java";
+System.out.println(name + " version " + number);</div>`,
+
+  `Object-Oriented Programming
+
+Key Points:
+1. Java supports OOP principles: Encapsulation, Inheritance, Polymorphism, and Abstraction.
+2. Classes and objects are the core concepts.
+3. Promotes code reuse and modularity.
+
+Example:
+<div class="code-block">class Animal {
+    void eat() {
+        System.out.println("This animal eats food.");
+    }
+}
+
+class Dog extends Animal {
+    void bark() {
+        System.out.println("The dog barks.");
+    }
+}</div>`,
+
+  `Inheritance
+
+Key Points:
+1. Inheritance allows one class to inherit fields and methods from another.
+2. Promotes code reuse and establishes a natural hierarchy.
+3. Uses the 'extends' keyword.
+
+Example:
+<div class="code-block">class Animal {
+    void eat() {
+        System.out.println("This animal eats food.");
+    }
+}
+
+class Dog extends Animal {
+    void bark() {
+        System.out.println("The dog barks.");
+    }
+}</div>`,
+
+  `Polymorphism
+
+Key Points:
+1. Polymorphism allows methods to do different things based on the object it is acting upon.
+2. Achieved through method overriding and method overloading.
+3. Promotes flexibility and integration.
+
+Example:
+<div class="code-block">class Animal {
+    void sound() {
+        System.out.println("Animal makes a sound");
+    }
+}
+
+class Dog extends Animal {
+    void sound() {
+        System.out.println("Dog barks");
+    }
+}</div>`,
+
+  `Abstraction
+
+Key Points:
+1. Abstraction hides the implementation details and shows only the functionality.
+2. Achieved using abstract classes and interfaces.
+3. Promotes code simplicity and reduces complexity.
+
+Example:
+<div class="code-block">abstract class Animal {
+    abstract void sound();
+}
+
+class Dog extends Animal {
+    void sound() {
+        System.out.println("Dog barks");
+    }
+}</div>`,
+
+  `Encapsulation
+
+Key Points:
+1. Encapsulation wraps data and methods into a single unit (class).
+2. Uses access modifiers to protect data.
+3. Promotes data hiding and security.
+
+Example:
+<div class="code-block">class Person {
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}</div>`,
+
+  `Interfaces
+
+Key Points:
+1. Interfaces provide a way to achieve abstraction and multiple inheritance.
+2. Contains abstract methods that must be implemented by classes.
+3. Uses the 'implements' keyword.
+
+Example:
+<div class="code-block">interface Animal {
+    void sound();
+}
+
+class Dog implements Animal {
+    public void sound() {
+        System.out.println("Dog barks");
+    }
+}</div>`,
+
+  `Exception Handling
+
+Key Points:
+1. Exception handling manages runtime errors to maintain normal application flow.
+2. Uses try, catch, and finally blocks.
+3. Custom exceptions can be created by extending the Exception class.
+
+Example:
+<div class="code-block">try {
+    int divideByZero = 5 / 0;
+} catch (ArithmeticException e) {
+    System.out.println("ArithmeticException: " + e.getMessage());
+}</div>`,
+
+  `Collections Framework
+
+Key Points:
+1. The Collections Framework provides a set of classes and interfaces for storing and manipulating data.
+2. Includes List, Set, Map, and Queue interfaces.
+3. Promotes code reuse and efficiency.
+
+Example:
+<div class="code-block">List<String> list = new ArrayList<>();
+list.add("Java");
+list.add("Python");
+System.out.println(list);</div>`,
+
+  `Streams and File I/O
+
+Key Points:
+1. Java provides classes for reading and writing data to files.
+2. Uses InputStream and OutputStream classes for byte streams.
+3. Uses Reader and Writer classes for character streams.
+
+Example:
+<div class="code-block">try (BufferedReader br = new BufferedReader(new FileReader("file.txt"))) {
+    String line;
+    while ((line = br.readLine()) != null) {
+        System.out.println(line);
+    }
+} catch (IOException e) {
+    e.printStackTrace();
+}</div>`,
+
+  `Multithreading
+
+Key Points:
+1. Multithreading allows concurrent execution of two or more threads.
+2. Uses the Thread class and Runnable interface.
+3. Promotes efficient CPU utilization.
+
+Example:
+<div class="code-block">class MyThread extends Thread {
+    public void run() {
+        System.out.println("Thread is running");
+    }
+}
+
+public class Test {
+    public static void main(String[] args) {
+        MyThread t1 = new MyThread();
+        t1.start();
+    }
+}</div>`,
+
+  `JavaFX
+
+Key Points:
+1. JavaFX is a software platform for creating and delivering desktop applications.
+2. Uses FXML for defining the UI.
+3. Provides rich GUI components.
+
+Example:
+<div class="code-block">import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+
+public class HelloWorld extends Application {
+    @Override
+    public void start(Stage primaryStage) {
+        Button btn = new Button();
+        btn.setText("Say 'Hello World'");
+        btn.setOnAction(event -> System.out.println("Hello World!"));
+
+        StackPane root = new StackPane();
+        root.getChildren().add(btn);
+
+        Scene scene = new Scene(root, 300, 250);
+
+        primaryStage.setTitle("Hello World!");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}</div>`,
+
+  `Networking
+
+Key Points:
+1. Java provides classes for networking applications.
+2. Uses the java.net package.
+3. Supports TCP and UDP protocols.
+
+Example:
+<div class="code-block">import java.io.*;
+import java.net.*;
+
+public class Client {
+    public static void main(String[] args) {
+        try (Socket socket = new Socket("localhost", 8080);
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
+            out.println("Hello Server");
+            System.out.println("Server says: " + in.readLine());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}</div>`,
+
+  `JDBC
+
+Key Points:
+1. JDBC (Java Database Connectivity) is an API for connecting and executing queries on a database.
+2. Uses the java.sql package.
+3. Supports various databases like MySQL, Oracle, and PostgreSQL.
+
+Example:
+<div class="code-block">import java.sql.*;
+
+public class DatabaseConnection {
+    public static void main(String[] args) {
+        String url = "jdbc:mysql://localhost:3306/mydatabase";
+        String user = "root";
+        String password = "password";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT * FROM users")) {
+
+            while (rs.next()) {
+                System.out.println(rs.getString("username"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}</div>`,
+
+  `Java 8 Features
+
+Key Points:
+1. Java 8 introduced lambda expressions, streams, and the new Date-Time API.
+2. Enhances code readability and efficiency.
+3. Promotes functional programming.
+
+Example:
+<div class="code-block">List<String> names = Arrays.asList("John", "Jane", "Jack", "Doe");
+names.forEach(name -> System.out.println(name));</div>`,
+
+  `Java 11 Features
+
+Key Points:
+1. Java 11 introduced new features like the HTTP Client API, local-variable syntax for lambda parameters, and more.
+2. Enhances performance and security.
+3. Promotes modern development practices.
+
+Example:
+<div class="code-block">var list = List.of("Java", "Python", "JavaScript");
+list.forEach(System.out::println);</div>`,
+
+  `Java 17 Features
+
+Key Points:
+1. Java 17 is a long-term support (LTS) release.
+2. Introduced new features like sealed classes, pattern matching for switch, and more.
+3. Enhances code readability and maintainability.
+
+Example:
+<div class="code-block">sealed class Shape permits Circle, Square {}
+
+final class Circle extends Shape {}
+final class Square extends Shape {}</div>`
+];
+
+
+    let currentUtterance = null;
+    let currentSectionIndex = -1;
+    let isPaused = false;
+
+    function togglePlay(sectionIndex) {
+      // Update highlighting
+      document.querySelectorAll('#topic-list li').forEach((item, index) => {
+        if (index === sectionIndex) {
+          item.classList.add('selected');
+        } else {
+          item.classList.remove('selected');
+        }
+      });
+      
+      // Check if speech synthesis is supported
+      if (!('speechSynthesis' in window)) {
+        alert('Speech synthesis is not supported in your browser.');
+        // Still show the modal content without speech
+        showModalContent(sectionIndex);
+        return;
+      }
+      
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+
+      currentSectionIndex = sectionIndex;
+      currentUtterance = new SpeechSynthesisUtterance(
+        tutorialTexts[sectionIndex].replace(/<[^>]*>/g, '')
+      );
+      currentUtterance.lang = 'en-US';
+      currentUtterance.rate = 1;
+
+      currentUtterance.onend = function() {
+        playNext();
+      };
+
+      showModalContent(sectionIndex);
+      
+      // Delay speech slightly to ensure modal is ready
+      setTimeout(() => {
+        try {
+          speechSynthesis.speak(currentUtterance);
+        } catch (e) {
+          console.error("Speech synthesis error:", e);
+        }
+      }, 200);
+    }
+    
+    function showModalContent(sectionIndex) {
+      // Format the content with improved styling
+      const formattedContent = formatTutorialContent(tutorialTexts[sectionIndex], sectionIndex);
+      document.getElementById('modal-content').innerHTML = formattedContent;
+      
+      // Open the modal
+      openModal();
+      
+      // Add copy buttons to code blocks
+      setTimeout(() => {
+        addCopyButtons();
+      }, 50);
+    }
+    
+    function formatTutorialContent(text, index) {
+      const paragraphs = text.split('\n');
+      let result = '<div class="tutorial-content">';
+      result += `<div class="tutorial-title">${topicTitles[index]}</div>`;
+      
+      let inCodeBlock = false;
+      let codeContent = '';
+      let bulletPoints = [];
+      
+      paragraphs.forEach(para => {
+        const trimmedPara = para.trim();
+        
+        if (trimmedPara === 'Example:') {
+          inCodeBlock = true;
+          codeContent = '';
+          result += `<span class="example-label">Example:</span>`;
+        } else if (inCodeBlock && trimmedPara.startsWith('<div class="code-example">')) {
+          const codeMatch = trimmedPara.match(/<div class="code-example">([\s\S]*?)<\/div>/);
+          if (codeMatch && codeMatch[1]) {
+            codeContent = codeMatch[1];
+          }
+        } else if (trimmedPara.startsWith('•')) {
+          bulletPoints.push(trimmedPara.substring(1).trim());
+        } else if (trimmedPara) {
+          result += `<p>${trimmedPara}</p>`;
+          
+          if (bulletPoints.length > 0) {
+            result += '<ul>';
+            bulletPoints.forEach(point => {
+              result += `<li>${point}</li>`;
+            });
+            result += '</ul>';
+            bulletPoints = [];
+          }
+        }
+      });
+      
+      if (codeContent) {
+        result += `<div class="code-container">
+                    <div class="code-block"><span class="example-label">Example:</span>${codeContent}</div>
+                  </div>`;
+      }
+      
+      result += '</div>';
+      return result;
+    }
+    
+    function addCopyButtons() {
+      const codeBlocks = document.querySelectorAll('.code-block, .code-example');
+      codeBlocks.forEach(block => {
+        if (!block.parentNode.querySelector('.copy-button')) {
+          const button = document.createElement('button');
+          button.className = 'copy-button';
+          button.textContent = 'Copy';
+          button.addEventListener('click', () => {
+            navigator.clipboard.writeText(block.textContent)
+              .then(() => {
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                  button.textContent = 'Copy';
+                }, 2000);
+              })
+              .catch(err => {
+                console.error('Failed to copy: ', err);
+                button.textContent = 'Failed!';
+                setTimeout(() => {
+                  button.textContent = 'Copy';
+                }, 2000);
+              });
+          });
+          block.parentNode.appendChild(button);
+        }
+      });
+    }
+
+    function playNext() {
+      if (currentSectionIndex < tutorialTexts.length - 1) {
+        togglePlay(currentSectionIndex + 1);
+      }
+    }
+
+    function playPrevious() {
+      if (currentSectionIndex > 0) {
+        togglePlay(currentSectionIndex - 1);
+      }
+    }
+
+    function togglePause() {
+      const speakerButton = document.getElementById('speaker-button');
+
+      // Check if speech synthesis is supported
+      if (!('speechSynthesis' in window)) {
+        alert('Speech synthesis is not supported in your browser.');
+        return;
+      }
+
+      if (speechSynthesis.speaking && !isPaused) {
+        try {
+          speechSynthesis.pause();
+          speakerButton.textContent = 'Pause';
+          speakerButton.classList.add('paused');
+          isPaused = true;
+        } catch (error) {
+          console.error('Error pausing speech:', error);
+          // Fallback: cancel and restart
+          speechSynthesis.cancel();
+          isPaused = false;
+          setTimeout(() => {
+            togglePlay(currentSectionIndex);
+          }, 100);
+        }
+      } else if (isPaused) {
+        try {
+          speechSynthesis.resume();
+          speakerButton.textContent = 'Play';
+          speakerButton.classList.remove('paused');
+          isPaused = false;
+        } catch (error) {
+          console.error('Error resuming speech:', error);
+          // Fallback: restart speech
+          speechSynthesis.cancel();
+          isPaused = false;
+          setTimeout(() => {
+            togglePlay(currentSectionIndex);
+          }, 100);
+        }
+      } else if (currentSectionIndex >= 0) {
+        // If not speaking but we have a section, restart it
+        togglePlay(currentSectionIndex);
+      }
+    }
+
+    function closeModal() {
+      // Remove highlight from all topics
+      document.querySelectorAll('#topic-list li').forEach(item => {
+        item.classList.remove('selected');
+      });
+      
+      // Cancel any ongoing speech
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+      
+      // Reset speaker button and pause state
+      const speakerButton = document.getElementById('speaker-button');
+      speakerButton.textContent = 'Play';
+      speakerButton.classList.remove('paused');
+      isPaused = false;
+      
+      // Hide the modal and overlay
+      const modal = document.getElementById('modal');
+      const overlay = document.getElementById('modal-overlay');
+      modal.style.display = 'none';
+      overlay.style.display = 'none';
+      
+      // Set accessibility attribute
+      modal.setAttribute('aria-hidden', 'true');
+      
+      // Remove keyboard listener
+      document.removeEventListener('keydown', handleKeyPress);
+      
+      // Optional: reload page
+      window.location.reload();
+    }
+
+    function filterTopics() {
+      const filter = document.getElementById('search-bar').value.toLowerCase();
+      const topics = document.getElementById('topic-list').getElementsByTagName('li');
+      for (let i = 0; i < topics.length; i++) {
+        const txtValue = topics[i].textContent || topics[i].innerText;
+        if (txtValue.toLowerCase().indexOf(filter) > -1) {
+          topics[i].style.display = '';
+        } else {
+          topics[i].style.display = 'none';
+        }
+      }
+    }
+
+    function openModal() {
+      const modal = document.getElementById('modal');
+      const overlay = document.getElementById('modal-overlay');
+      
+      // Position calculation based on screen size
+      if (window.innerWidth > 1366) {
+        // Desktop
+        modal.style.left = 'calc(25% + 100px)';
+        modal.style.transform = 'translate(-10%, -50%)';
+      } else if (window.innerWidth > 1024) {
+        // Laptop
+        modal.style.left = 'calc(20% + 160px)';
+        modal.style.transform = 'translate(-10%, -50%)';
+      } else {
+        // Tablet and below - center it
+        modal.style.left = '50%';
+        modal.style.transform = 'translate(-50%, -50%)';
+      }
+      
+      // Show immediately
+      modal.style.display = 'block';
+      overlay.style.display = 'block';
+      
+      // Accessibility
+      modal.setAttribute('aria-hidden', 'false');
+      
+      // Add keyboard navigation
+      document.addEventListener('keydown', handleKeyPress);
+    }
+
+    // Keyboard navigation for the modal
+    function handleKeyPress(e) {
+      // Only handle keys if modal is open
+      if (document.getElementById('modal').style.display === 'block') {
+        if (e.key === 'Escape') {
+          closeModal();
+        } else if (e.key === 'ArrowRight') {
+          playNext();
+        } else if (e.key === 'ArrowLeft') {
+          playPrevious();
+        } else if (e.key === ' ') {
+          e.preventDefault(); // Prevent page scrolling
+          togglePause();
+        }
+      }
+    }
+
+    // Add page refresh functionality for wrong button clicks in the modal
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add a click handler to the entire modal
+      const modal = document.getElementById('modal');
+      if (modal) {
+        // Listen for clicks on the modal background
+        modal.addEventListener('click', function(e) {
+          // Check if the click was on the modal itself and not its content
+          if (e.target === modal) {
+            e.stopPropagation();
+            window.location.reload();
+          }
+        });
+      }
+      
+      // Also close modal when overlay is clicked
+      const overlay = document.getElementById('modal-overlay');
+      if (overlay) {
+        overlay.addEventListener('click', closeModal);
+      }
+      
+      // Make sure the close button works
+      const closeButton = document.querySelector('.close-button');
+      if (closeButton) {
+        closeButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal();
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programming Tutorials</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #f0f2f5, #e0e7ff);
+            color: #333;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            font-size: 40px;
+            margin-bottom: 20px;
+            color: #4A90E2;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            color: #555;
+        }
+
+        .tutorial-links {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tutorial-link {
+            margin: 10px;
+            padding: 20px 40px;
+            background: #4A90E2;
+            color: white;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: bold;
+            display: inline-block;
+            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px; /* Ensure all buttons have the same width */
+            text-align: center;
+        }
+
+        .tutorial-link:hover {
+            background: #357ABD;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            body {
+                padding: 30px;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            p {
+                font-size: 18px;
+            }
+
+            .tutorial-link {
+                font-size: 22px;
+                padding: 15px 30px;
+                width: 250px; /* Adjust width for smaller screens */
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            p {
+                font-size: 16px;
+            }
+
+            .tutorial-link {
+                font-size: 20px;
+                padding: 12px 25px;
+                margin: 15px;
+                width: 200px; /* Adjust width for smaller screens */
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            p {
+                font-size: 14px;
+            }
+
+            .tutorial-link {
+                font-size: 18px;
+                padding: 10px 20px;
+                margin: 10px;
+                width: 180px; /* Adjust width for smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the CSE Programming Tutorials</h1>
+    <p>Select a topic to get started:</p>
+    <div class="tutorial-links">
+        <a href="python_tutorial.html" class="tutorial-link">Python Tutorial</a>
+        <a href="dbms_tutorial.html" class="tutorial-link">DBMS Tutorial</a>
+        <a href="c_tutorial.html" class="tutorial-link">C Tutorial</a>
+        <a href="java_tutorial.html" class="tutorial-link">Java Tutorial</a>
+        <a href="os_tutorial.html" class="tutorial-link">Operating System</a>
+    </div>
+</body>
+</html>
